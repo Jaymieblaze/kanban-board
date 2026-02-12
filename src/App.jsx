@@ -1,35 +1,54 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import ColumnContainer from "./components/ColumnContainer";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [columns, setColumns] = useState([
+    { id: "todo", title: "Todo" },
+    { id: "doing", title: "Work in Progress" },
+    { id: "done", title: "Done" },
+  ]);
+
+  const [tasks, setTasks] = useState([
+    { id: "1", columnId: "todo", content: "Analyze Competitors" },
+    { id: "2", columnId: "doing", content: "Design System" },
+    { id: "3", columnId: "done", content: "Setup React Repo" },
+  ]);
+
+  function createTask(columnId) {
+    const newTask = {
+      id: Math.floor(Math.random() * 10001).toString(),
+      columnId,
+      content: `Task ${tasks.length + 1}`,
+    };
+    setTasks([...tasks, newTask]);
+  }
+
+  function deleteTask(id) {
+    const newTasks = tasks.filter((task) => task.id !== id);
+    setTasks(newTasks);
+  }
+
+  function deleteColumn(id) {
+    const filteredColumns = columns.filter((col) => col.id !== id);
+    setColumns(filteredColumns);
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="m-auto flex min-h-screen w-full items-center justify-center overflow-x-auto overflow-y-hidden px-[40px]">
+      <div className="m-auto flex gap-4">
+        {columns.map((col) => (
+          <ColumnContainer
+            key={col.id}
+            column={col}
+            deleteColumn={deleteColumn}
+            tasks={tasks.filter((task) => task.columnId === col.id)}
+            createTask={createTask}
+            deleteTask={deleteTask}
+          />
+        ))}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+export default App;
