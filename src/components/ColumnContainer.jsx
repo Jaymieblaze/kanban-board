@@ -1,10 +1,18 @@
+import { useMemo } from "react";
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { Plus, Trash2 } from "lucide-react";
 import TaskCard from "./TaskCard";
 
 function ColumnContainer({ column, deleteColumn, tasks, createTask, deleteTask }) {
+  
+  // Create an array of IDs for the SortableContext
+  const tasksIds = useMemo(() => {
+    return tasks.map((task) => task.id);
+  }, [tasks]);
+
   return (
     <div className="bg-gray-100 w-[350px] h-[500px] max-h-[500px] rounded-md flex flex-col">
-      {/* Column Title */}
+      {/* Title */}
       <div className="bg-gray-100 text-md h-[60px] cursor-grab rounded-md rounded-b-none p-3 font-bold border-gray-400 border-4 flex items-center justify-between">
         <div className="flex gap-2">
           <div className="flex justify-center items-center bg-gray-200 px-2 py-1 text-sm rounded-full">
@@ -20,14 +28,16 @@ function ColumnContainer({ column, deleteColumn, tasks, createTask, deleteTask }
         </button>
       </div>
 
-      {/* Task List Area */}
+      {/* Task List Area - NOW WRAPPED IN SORTABLE CONTEXT */}
       <div className="flex flex-grow flex-col gap-4 p-2 overflow-x-hidden overflow-y-auto">
-        {tasks.map((task) => (
-          <TaskCard key={task.id} task={task} deleteTask={deleteTask} />
-        ))}
+        <SortableContext items={tasksIds} strategy={verticalListSortingStrategy}>
+          {tasks.map((task) => (
+            <TaskCard key={task.id} task={task} deleteTask={deleteTask} />
+          ))}
+        </SortableContext>
       </div>
 
-      {/* Footer (Add Task Button) */}
+      {/* Footer */}
       <button
         className="flex gap-2 items-center border-gray-400 border-2 rounded-md p-4 border-x-gray-400 hover:bg-gray-200 hover:text-rose-500 active:bg-black"
         onClick={() => createTask(column.id)}
