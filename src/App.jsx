@@ -93,7 +93,7 @@ function App() {
 
     if (!isActiveTask) return;
 
-    // Dropping a Task over another Task
+    // Scenario 1: Dropping a Task over another Task
     if (isActiveTask && isOverTask) {
       setTasks((tasks) => {
         const activeIndex = tasks.findIndex((t) => t.id === activeId);
@@ -101,17 +101,24 @@ function App() {
 
         if (tasks[activeIndex].columnId !== tasks[overIndex].columnId) {
           tasks[activeIndex].columnId = tasks[overIndex].columnId;
-          return arrayMove(tasks, activeIndex, overIndex - 1); // logic adjustment
+          return arrayMove(tasks, activeIndex, overIndex - 1);
         }
 
         return arrayMove(tasks, activeIndex, overIndex);
       });
     }
 
-    // Dropping a Task over a Column (if the column is empty)
-    const isOverColumn = over.data.current?.type === "Column"; // We didn't set column type yet, so this part is tricky.
-    // Simpler hack for empty columns:
-    // If we drag over a column container that has no tasks, we just update the columnId
+    // Scenario 2: Dropping a Task over a Column (The Empty Column Fix)
+    const isOverColumn = over.data.current?.type === "Column";
+    if (isActiveTask && isOverColumn) {
+      setTasks((tasks) => {
+        const activeIndex = tasks.findIndex((t) => t.id === activeId);
+        // Change the task's columnId to the new column's ID
+        tasks[activeIndex].columnId = overId;
+        // Move it to the active index (essentially forcing a re-render in the new column)
+        return arrayMove(tasks, activeIndex, activeIndex); 
+      });
+    }
   }
 
   return (
