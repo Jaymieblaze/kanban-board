@@ -72,7 +72,7 @@ function ColumnContainer({ column, deleteColumn, updateColumn, tasks, createTask
               className="bg-white dark:bg-gray-700 border-2 border-purple-400 dark:border-purple-600 focus:border-purple-600 dark:focus:border-purple-400 rounded-lg outline-none px-2 py-1 shadow-sm text-gray-800 dark:text-gray-200"
               value={column.title}
               onChange={(e) => updateColumn(column.id, e.target.value)}
-              autoFocus
+              autoFocusg
               onBlur={() => setEditMode(false)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
