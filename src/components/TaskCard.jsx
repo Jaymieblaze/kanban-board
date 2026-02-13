@@ -99,13 +99,14 @@ function TaskCard({ task, deleteTask, updateTask }) {
             
             {/* Modal */}
             <div
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[9999] bg-white p-6 w-[500px] max-w-[90vw] rounded-2xl shadow-2xl max-h-[80vh] overflow-y-auto border border-purple-100"
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[9999] bg-white p-4 sm:p-6 w-[95vw] sm:w-[500px] max-w-[90vw] rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto border border-purple-100"
             >
           <div className="flex justify-between items-start mb-4">
             <h3 className="text-lg font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">Edit Task</h3>
             <button
               onClick={toggleEditMode}
-              className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg p-1 transition-all"
+              className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg p-2 transition-all touch-manipulation min-w-[44px] min-h-[44px] flex items-center justify-center"
+              aria-label="Close"
             >
               <X size={20} />
             </button>

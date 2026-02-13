@@ -38,7 +38,7 @@ function ColumnContainer({ column, deleteColumn, updateColumn, tasks, createTask
       <div
         ref={setNodeRef}
         style={style}
-        className="bg-white/50 w-[350px] h-[500px] max-h-[500px] rounded-xl flex flex-col opacity-50 border-2 border-dashed border-purple-400 shadow-lg"
+        className="bg-white/50 h-[500px] max-h-[500px] rounded-xl flex flex-col opacity-50 border-2 border-dashed border-purple-400 shadow-lg"
       ></div>
     );
   }
@@ -47,7 +47,7 @@ function ColumnContainer({ column, deleteColumn, updateColumn, tasks, createTask
     <div
       ref={setNodeRef}
       style={style}
-      className="bg-white/95 backdrop-blur-sm w-[350px] h-[500px] max-h-[500px] rounded-xl flex flex-col shadow-xl border border-white/40"
+      className="bg-white/95 backdrop-blur-sm h-[500px] max-h-[500px] rounded-xl flex flex-col shadow-xl border border-white/40"
     >
       {/* Title Area */}
       <div
@@ -112,7 +112,7 @@ function ColumnContainer({ column, deleteColumn, updateColumn, tasks, createTask
 
       {/* Footer */}
       <button
-        className="flex gap-2 items-center justify-center border-t-2 border-purple-100 rounded-b-xl p-3 bg-white hover:bg-purple-50 text-gray-600 hover:text-purple-600 transition-all font-medium text-sm"
+        className="flex gap-2 items-center justify-center border-t-2 border-purple-100 rounded-b-xl p-4 bg-white hover:bg-purple-50 active:bg-purple-100 text-gray-600 hover:text-purple-600 transition-all font-medium text-sm touch-manipulation min-h-[48px]"
         onClick={() => createTask(column.id)}
       >
         <Plus size={18} /> Add Task
