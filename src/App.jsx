@@ -4,7 +4,7 @@ import { SortableContext, arrayMove } from "@dnd-kit/sortable";
 import { createPortal } from "react-dom";
 import ColumnContainer from "./components/ColumnContainer";
 import TaskCard from "./components/TaskCard";
-import { PlusIcon, Search, X, LayoutDashboard, CheckCircle2, Clock, AlertCircle, ChevronLeft, ChevronRight, Menu, Moon, Sun } from "lucide-react";
+import { PlusIcon, Search, X, LayoutDashboard, CheckCircle2, Clock, AlertCircle, ChevronLeft, ChevronRight, Menu, Moon, Sun, Filter } from "lucide-react";
 
 const defaultCols = [
   { id: "todo", title: "Todo" },
@@ -57,6 +57,12 @@ function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
   const [showMobileStats, setShowMobileStats] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState({
+    priorities: [],
+    tags: [],
+    showOverdue: false
+  });
   const [darkMode, setDarkMode] = useState(() => {
     const savedDarkMode = localStorage.getItem("kanban-dark-mode");
     return savedDarkMode ? JSON.parse(savedDarkMode) : false;
@@ -74,17 +80,92 @@ function App() {
     localStorage.setItem("kanban-dark-mode", JSON.stringify(darkMode));
   }, [darkMode]);
 
-  // Filter tasks based on search query
+  // Filter tasks based on search query and filters
   const filteredTasks = useMemo(() => {
-    if (!searchQuery.trim()) return tasks;
-    const query = searchQuery.toLowerCase();
-    return tasks.filter((task) => {
-      const matchesContent = task.content.toLowerCase().includes(query);
-      const matchesDescription = task.description?.toLowerCase().includes(query);
-      const matchesTags = task.tags?.some(tag => tag.toLowerCase().includes(query));
-      return matchesContent || matchesDescription || matchesTags;
+    let result = tasks;
+    
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter((task) => {
+        const matchesContent = task.content.toLowerCase().includes(query);
+        const matchesDescription = task.description?.toLowerCase().includes(query);
+        const matchesTags = task.tags?.some(tag => tag.toLowerCase().includes(query));
+        return matchesContent || matchesDescription || matchesTags;
+      });
+    }
+    
+    // Apply priority filter
+    if (filters.priorities.length > 0) {
+      result = result.filter((task) => filters.priorities.includes(task.priority));
+    }
+    
+    // Apply tag filter
+    if (filters.tags.length > 0) {
+      result = result.filter((task) => 
+        task.tags?.some(tag => filters.tags.includes(tag))
+      );
+    }
+    
+    // Apply overdue filter
+    if (filters.showOverdue) {
+      result = result.filter((task) => {
+        if (!task.dueDate) return false;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const due = new Date(task.dueDate);
+        due.setHours(0, 0, 0, 0);
+        return due < today;
+      });
+    }
+    
+    return result;
+  }, [tasks, searchQuery, filters]);
+
+  // Get all unique tags from all tasks
+  const allTags = useMemo(() => {
+    const tagsSet = new Set();
+    tasks.forEach(task => {
+      task.tags?.forEach(tag => tagsSet.add(tag));
     });
-  }, [tasks, searchQuery]);
+    return Array.from(tagsSet).sort();
+  }, [tasks]);
+
+  // Filter helper functions
+  const togglePriorityFilter = (priority) => {
+    setFilters(prev => ({
+      ...prev,
+      priorities: prev.priorities.includes(priority)
+        ? prev.priorities.filter(p => p !== priority)
+        : [...prev.priorities, priority]
+    }));
+  };
+
+  const toggleTagFilter = (tag) => {
+    setFilters(prev => ({
+      ...prev,
+      tags: prev.tags.includes(tag)
+        ? prev.tags.filter(t => t !== tag)
+        : [...prev.tags, tag]
+    }));
+  };
+
+  const toggleOverdueFilter = () => {
+    setFilters(prev => ({
+      ...prev,
+      showOverdue: !prev.showOverdue
+    }));
+  };
+
+  const clearAllFilters = () => {
+    setFilters({
+      priorities: [],
+      tags: [],
+      showOverdue: false
+    });
+  };
+
+  const hasActiveFilters = filters.priorities.length > 0 || filters.tags.length > 0 || filters.showOverdue;
 
   // Save columns to localStorage whenever they change
   useEffect(() => {
@@ -335,6 +416,19 @@ function App() {
               )}
             </button>
             
+            {/* Filter Toggle Button */}
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`relative p-2 hover:bg-purple-50 dark:hover:bg-gray-800 active:bg-purple-100 dark:active:bg-gray-700 rounded-lg transition-colors flex-shrink-0 ${hasActiveFilters ? 'bg-purple-100 dark:bg-purple-900' : ''}`}
+              aria-label="Toggle filters"
+              type="button"
+            >
+              <Filter size={20} className={hasActiveFilters ? 'text-purple-600 dark:text-purple-400' : 'text-gray-600 dark:text-gray-400'} />
+              {hasActiveFilters && (
+                <span className="absolute top-0 right-0 w-2 h-2 bg-purple-600 rounded-full"></span>
+              )}
+            </button>
+            
             {/* Mobile Stats Menu Button */}
             <button
               onClick={() => setShowMobileStats(!showMobileStats)}
@@ -345,10 +439,11 @@ function App() {
             </button>
           </div>
           
-          {/* Search results count - More compact on mobile */}
-          {searchQuery && (
+          {/* Search/Filter results count */}
+          {(searchQuery || hasActiveFilters) && (
             <p className="mt-1 sm:mt-1.5 text-xs text-purple-600 dark:text-purple-400 font-medium pl-2 sm:pl-9">
               {filteredTasks.length} result{filteredTasks.length !== 1 ? "s" : ""}
+              {hasActiveFilters && " (filtered)"}
             </p>
           )}
           
@@ -390,6 +485,100 @@ function App() {
                       </div>
                     </div>
                   )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Filter Panel */}
+          {showFilters && (
+            <div className="mt-3 pb-2 px-2 animate-in slide-in-from-top-2 duration-200">
+              <div className="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 rounded-xl p-4 shadow-lg border border-purple-100 dark:border-gray-700">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-bold text-purple-900 dark:text-purple-300">Filters</h3>
+                  <div className="flex gap-2">
+                    {hasActiveFilters && (
+                      <button
+                        onClick={clearAllFilters}
+                        className="text-xs text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium"
+                      >
+                        Clear All
+                      </button>
+                    )}
+                    <button
+                      onClick={() => setShowFilters(false)}
+                      className="p-1 hover:bg-white/50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                      aria-label="Close filters"
+                    >
+                      <X size={14} className="text-purple-600 dark:text-purple-400" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Priority Filter */}
+                <div className="mb-4">
+                  <label className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 block">Priority</label>
+                  <div className="flex flex-wrap gap-2">
+                    {['low', 'medium', 'high', 'urgent'].map(priority => (
+                      <button
+                        key={priority}
+                        onClick={() => togglePriorityFilter(priority)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-all ${
+                          filters.priorities.includes(priority)
+                            ? 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white shadow-md'
+                            : 'bg-white/80 dark:bg-gray-700/80 text-gray-700 dark:text-gray-300 hover:bg-purple-100 dark:hover:bg-gray-600'
+                        }`}
+                      >
+                        {priority}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Tags Filter */}
+                {allTags.length > 0 && (
+                  <div className="mb-4">
+                    <label className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 block">Tags</label>
+                    <div className="flex flex-wrap gap-2">
+                      {allTags.map(tag => (
+                        <button
+                          key={tag}
+                          onClick={() => toggleTagFilter(tag)}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                            filters.tags.includes(tag)
+                              ? 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white shadow-md'
+                              : 'bg-white/80 dark:bg-gray-700/80 text-gray-700 dark:text-gray-300 hover:bg-purple-100 dark:hover:bg-gray-600'
+                          }`}
+                        >
+                          {tag}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Overdue Toggle */}
+                <div>
+                  <button
+                    onClick={toggleOverdueFilter}
+                    className={`w-full flex items-center justify-between px-4 py-2.5 rounded-lg transition-all ${
+                      filters.showOverdue
+                        ? 'bg-gradient-to-r from-red-500 to-rose-500 text-white shadow-md'
+                        : 'bg-white/80 dark:bg-gray-700/80 text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-600'
+                    }`}
+                  >
+                    <span className="flex items-center gap-2 text-sm font-medium">
+                      <AlertCircle size={16} />
+                      Show Overdue Only
+                    </span>
+                    <div className={`w-10 h-5 rounded-full transition-colors ${
+                      filters.showOverdue ? 'bg-white/30' : 'bg-gray-300 dark:bg-gray-600'
+                    } relative`}>
+                      <div className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform ${
+                        filters.showOverdue ? 'translate-x-5' : ''
+                      }`}></div>
+                    </div>
+                  </button>
                 </div>
               </div>
             </div>
