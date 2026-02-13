@@ -4,7 +4,7 @@ import { SortableContext, arrayMove } from "@dnd-kit/sortable";
 import { createPortal } from "react-dom";
 import ColumnContainer from "./components/ColumnContainer";
 import TaskCard from "./components/TaskCard";
-import { PlusIcon, Search, X, LayoutDashboard, CheckCircle2, Clock, AlertCircle, ChevronLeft, ChevronRight, Menu } from "lucide-react";
+import { PlusIcon, Search, X, LayoutDashboard, CheckCircle2, Clock, AlertCircle, ChevronLeft, ChevronRight, Menu, Moon, Sun } from "lucide-react";
 
 const defaultCols = [
   { id: "todo", title: "Todo" },
@@ -57,8 +57,22 @@ function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
   const [showMobileStats, setShowMobileStats] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => {
+    const savedDarkMode = localStorage.getItem("kanban-dark-mode");
+    return savedDarkMode ? JSON.parse(savedDarkMode) : false;
+  });
   
   const COLUMNS_PER_PAGE = 4;
+
+  // Apply dark mode to document
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    localStorage.setItem("kanban-dark-mode", JSON.stringify(darkMode));
+  }, [darkMode]);
 
   // Filter tasks based on search query
   const filteredTasks = useMemo(() => {
@@ -250,9 +264,9 @@ function App() {
   }, [currentPage, totalPages]);
 
   return (
-    <div className="min-h-screen w-full flex flex-col">
+    <div className="min-h-screen w-full flex flex-col bg-gradient-to-br from-purple-100 via-indigo-100 to-purple-50 dark:from-gray-900 dark:via-slate-900 dark:to-gray-800">
       {/* Header */}
-      <header className="bg-white/95 backdrop-blur-sm shadow-lg border-b border-white/20 sticky top-0 z-30">
+      <header className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm shadow-lg border-b border-purple-100 dark:border-gray-700 sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 py-2">
           {/* Single Row: Title, Search, and Stats */}
           <div className="flex items-center gap-2 sm:gap-4">
@@ -261,23 +275,23 @@ function App() {
               <div className="bg-gradient-to-br from-purple-500 via-purple-600 to-indigo-600 p-1.5 sm:p-2 rounded-lg sm:rounded-xl shadow-lg">
                 <LayoutDashboard className="text-white" size={18} />
               </div>
-              <h1 className="text-sm sm:text-xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent whitespace-nowrap\">Kanban Board</h1>
+              <h1 className="text-sm sm:text-xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 dark:from-purple-400 dark:to-indigo-400 bg-clip-text text-transparent whitespace-nowrap">Kanban Board</h1>
             </div>
 
             {/* Search Bar */}
             <div className="flex-1 relative min-w-0">
-              <Search className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+              <Search className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" size={16} />
               <input
                 type="text"
                 placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-lg sm:rounded-xl border-2 border-gray-200 py-1.5 sm:py-2 pl-8 sm:pl-10 pr-8 sm:pr-10 focus:border-purple-400 focus:ring-2 sm:focus:ring-4 focus:ring-purple-100 focus:outline-none transition-all bg-white shadow-sm text-sm"
+                className="w-full rounded-lg sm:rounded-xl border-2 border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 py-1.5 sm:py-2 pl-8 sm:pl-10 pr-8 sm:pr-10 focus:border-purple-400 dark:focus:border-purple-500 focus:ring-2 sm:focus:ring-4 focus:ring-purple-100 dark:focus:ring-purple-900 focus:outline-none transition-all bg-white shadow-sm text-sm"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery("")}
-                  className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-1 transition-all"
+                  className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full p-1 transition-all"
                   aria-label="Clear search"
                 >
                   <X size={14} />
@@ -287,35 +301,53 @@ function App() {
 
             {/* Statistics - Hidden on mobile/tablet, shown on desktop */}
             <div className="hidden lg:flex items-center gap-1.5 flex-shrink-0">
-              <div className="flex items-center gap-1 px-2.5 py-1.5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200/50 shadow-sm">
-                <LayoutDashboard size={14} className="text-indigo-600" />
-                <span className="text-xs font-bold text-indigo-700">{stats.total}</span>
+              <div className="flex items-center gap-1 px-2.5 py-1.5 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 rounded-lg border border-blue-200/50 dark:border-blue-800 shadow-sm">
+                <LayoutDashboard size={14} className="text-indigo-600 dark:text-indigo-400" />
+                <span className="text-xs font-bold text-indigo-700 dark:text-indigo-300">{stats.total}</span>
               </div>
-              <div className="flex items-center gap-1 px-2.5 py-1.5 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200/50 shadow-sm">
-                <CheckCircle2 size={14} className="text-green-600" />
-                <span className="text-xs font-bold text-green-700">{stats.completed}</span>
+              <div className="flex items-center gap-1 px-2.5 py-1.5 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950 rounded-lg border border-green-200/50 dark:border-green-800 shadow-sm">
+                <CheckCircle2 size={14} className="text-green-600 dark:text-green-400" />
+                <span className="text-xs font-bold text-green-700 dark:text-green-300">{stats.completed}</span>
               </div>
               {stats.overdue > 0 && (
-                <div className="flex items-center gap-1 px-2.5 py-1.5 bg-gradient-to-r from-red-50 to-rose-50 rounded-lg border border-red-200/50 shadow-sm">
-                  <AlertCircle size={14} className="text-red-600" />
-                  <span className="text-xs font-bold text-red-700">{stats.overdue}</span>
+                <div className="flex items-center gap-1 px-2.5 py-1.5 bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-950 dark:to-rose-950 rounded-lg border border-red-200/50 dark:border-red-800 shadow-sm">
+                  <AlertCircle size={14} className="text-red-600 dark:text-red-400" />
+                  <span className="text-xs font-bold text-red-700 dark:text-red-300">{stats.overdue}</span>
                 </div>
               )}
             </div>
             
+            {/* Dark Mode Toggle */}
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setDarkMode(prev => !prev);
+              }}
+              className="p-2 hover:bg-purple-50 dark:hover:bg-gray-800 active:bg-purple-100 dark:active:bg-gray-700 rounded-lg transition-colors flex-shrink-0 cursor-pointer"
+              aria-label="Toggle dark mode"
+              type="button"
+            >
+              {darkMode ? (
+                <Sun size={20} className="text-yellow-500" />
+              ) : (
+                <Moon size={20} className="text-purple-600" />
+              )}
+            </button>
+            
             {/* Mobile Stats Menu Button */}
             <button
               onClick={() => setShowMobileStats(!showMobileStats)}
-              className="lg:hidden p-2 hover:bg-purple-50 active:bg-purple-100 rounded-lg transition-colors flex-shrink-0"
+              className="lg:hidden p-2 hover:bg-purple-50 dark:hover:bg-gray-800 active:bg-purple-100 dark:active:bg-gray-700 rounded-lg transition-colors flex-shrink-0"
               aria-label="Toggle statistics"
             >
-              <Menu size={20} className="text-purple-600" />
+              <Menu size={20} className="text-purple-600 dark:text-purple-400" />
             </button>
           </div>
           
           {/* Search results count - More compact on mobile */}
           {searchQuery && (
-            <p className="mt-1 sm:mt-1.5 text-xs text-purple-600 font-medium pl-2 sm:pl-9">
+            <p className="mt-1 sm:mt-1.5 text-xs text-purple-600 dark:text-purple-400 font-medium pl-2 sm:pl-9">
               {filteredTasks.length} result{filteredTasks.length !== 1 ? "s" : ""}
             </p>
           )}
@@ -323,38 +355,38 @@ function App() {
           {/* Mobile Stats Panel */}
           {showMobileStats && (
             <div className="lg:hidden mt-3 pb-2 px-2 animate-in slide-in-from-top-2 duration-200">
-              <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl p-3 shadow-lg border border-purple-100">
+              <div className="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 rounded-xl p-3 shadow-lg border border-purple-100 dark:border-gray-700">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-xs font-bold text-purple-900">Statistics</h3>
+                  <h3 className="text-xs font-bold text-purple-900 dark:text-purple-300">Statistics</h3>
                   <button
                     onClick={() => setShowMobileStats(false)}
-                    className="p-1 hover:bg-white/50 rounded-lg transition-colors"
+                    className="p-1 hover:bg-white/50 dark:hover:bg-gray-700 rounded-lg transition-colors"
                     aria-label="Close statistics"
                   >
-                    <X size={14} className="text-purple-600" />
+                    <X size={14} className="text-purple-600 dark:text-purple-400" />
                   </button>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
-                  <div className="flex items-center gap-2 px-3 py-2 bg-white/80 rounded-lg shadow-sm">
-                    <Clock size={16} className="text-indigo-600" />
+                  <div className="flex items-center gap-2 px-3 py-2 bg-white/80 dark:bg-gray-700/80 rounded-lg shadow-sm">
+                    <Clock size={16} className="text-indigo-600 dark:text-indigo-400" />
                     <div>
-                      <p className="text-xs text-gray-500">Total</p>
-                      <p className="text-lg font-bold text-indigo-700">{stats.total}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Total</p>
+                      <p className="text-lg font-bold text-indigo-700 dark:text-indigo-300">{stats.total}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 px-3 py-2 bg-white/80 rounded-lg shadow-sm">
-                    <CheckCircle2 size={16} className="text-green-600" />
+                  <div className="flex items-center gap-2 px-3 py-2 bg-white/80 dark:bg-gray-700/80 rounded-lg shadow-sm">
+                    <CheckCircle2 size={16} className="text-green-600 dark:text-green-400" />
                     <div>
-                      <p className="text-xs text-gray-500">Done</p>
-                      <p className="text-lg font-bold text-green-700">{stats.completed}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Done</p>
+                      <p className="text-lg font-bold text-green-700 dark:text-green-300">{stats.completed}</p>
                     </div>
                   </div>
                   {stats.overdue > 0 && (
-                    <div className="flex items-center gap-2 px-3 py-2 bg-white/80 rounded-lg shadow-sm col-span-2">
-                      <AlertCircle size={16} className="text-red-600" />
+                    <div className="flex items-center gap-2 px-3 py-2 bg-white/80 dark:bg-gray-700/80 rounded-lg shadow-sm col-span-2">
+                      <AlertCircle size={16} className="text-red-600 dark:text-red-400" />
                       <div>
-                        <p className="text-xs text-gray-500">Overdue</p>
-                        <p className="text-lg font-bold text-red-700">{stats.overdue}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Overdue</p>
+                        <p className="text-lg font-bold text-red-700 dark:text-red-300">{stats.overdue}</p>
                       </div>
                     </div>
                   )}
@@ -381,26 +413,26 @@ function App() {
                 <button
                   onClick={() => setCurrentPage(p => Math.max(0, p - 1))}
                   disabled={currentPage === 0}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white transition-all border border-purple-200 disabled:hover:bg-white/80"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-md hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white dark:hover:bg-gray-800 transition-all border border-purple-200 dark:border-gray-700 disabled:hover:bg-white/80 dark:disabled:hover:bg-gray-800/80"
                 >
-                  <ChevronLeft size={20} className="text-purple-600" />
-                  <span className="text-sm font-medium text-gray-700">Previous</span>
+                  <ChevronLeft size={20} className="text-purple-600 dark:text-purple-400" />
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Previous</span>
                 </button>
                 
-                <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200/50 shadow-sm">
-                  <span className="text-sm font-semibold text-purple-700">
+                <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-950 dark:to-indigo-950 border border-purple-200/50 dark:border-purple-800 shadow-sm">
+                  <span className="text-sm font-semibold text-purple-700 dark:text-purple-300">
                     Page {currentPage + 1} of {totalPages}
                   </span>
-                  <span className="text-xs text-gray-500">({columns.length} columns)</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">({columns.length} columns)</span>
                 </div>
                 
                 <button
                   onClick={() => setCurrentPage(p => Math.min(totalPages - 1, p + 1))}
                   disabled={currentPage >= totalPages - 1}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white transition-all border border-purple-200 disabled:hover:bg-white/80"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-md hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white dark:hover:bg-gray-800 transition-all border border-purple-200 dark:border-gray-700 disabled:hover:bg-white/80 dark:disabled:hover:bg-gray-800/80"
                 >
-                  <span className="text-sm font-medium text-gray-700">Next</span>
-                  <ChevronRight size={20} className="text-purple-600" />
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Next</span>
+                  <ChevronRight size={20} className="text-purple-600 dark:text-purple-400" />
                 </button>
               </div>
               

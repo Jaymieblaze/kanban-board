@@ -1,9 +1,6 @@
 @import "tailwindcss";
 
-body {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  background-attachment: fixed;
-}
+@variant dark (.dark &);
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
@@ -20,6 +17,14 @@ body {
   border-radius: 4px;
 }
 
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+}
+
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 0, 0, 0.3);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
 }
