@@ -460,7 +460,7 @@ function App() {
                   {/* Add Column Button - Mobile */}
                   <button
                     onClick={createNewColumn}
-                    className="w-[85vw] sm:w-[400px] flex-shrink-0 h-[500px] rounded-xl border-2 border-dashed border-purple-200 hover:border-purple-400 active:border-purple-500 bg-white/60 backdrop-blur-sm hover:bg-white/90 active:bg-white transition-all flex flex-col items-center justify-center gap-3 text-gray-400 hover:text-purple-600 active:text-purple-700 group shadow-lg"
+                    className="w-[85vw] sm:w-[400px] flex-shrink-0 min-h-[400px] max-h-[calc(100vh-180px)] rounded-xl border-2 border-dashed border-purple-200 hover:border-purple-400 active:border-purple-500 bg-white/60 backdrop-blur-sm hover:bg-white/90 active:bg-white transition-all flex flex-col items-center justify-center gap-3 text-gray-400 hover:text-purple-600 active:text-purple-700 group shadow-lg"
                   >
                     <div className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-100 to-indigo-100 group-hover:from-purple-200 group-hover:to-indigo-200 flex items-center justify-center transition-all shadow-md">
                       <PlusIcon size={28} className="text-purple-600 group-hover:scale-110 transition-transform" />
@@ -501,7 +501,7 @@ function App() {
                         }
                       }, 0);
                     }}
-                    className="h-[500px] rounded-xl border-2 border-dashed border-purple-200 hover:border-purple-400 bg-white/60 backdrop-blur-sm hover:bg-white/90 transition-all flex flex-col items-center justify-center gap-3 text-gray-400 hover:text-purple-600 group shadow-lg hover:shadow-xl"
+                    className="min-h-[400px] max-h-[calc(100vh-180px)] rounded-xl border-2 border-dashed border-purple-200 hover:border-purple-400 bg-white/60 backdrop-blur-sm hover:bg-white/90 transition-all flex flex-col items-center justify-center gap-3 text-gray-400 hover:text-purple-600 group shadow-lg hover:shadow-xl"
                   >
                     <div className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-100 to-indigo-100 group-hover:from-purple-200 group-hover:to-indigo-200 flex items-center justify-center transition-all shadow-md">
                       <PlusIcon size={28} className="text-purple-600 group-hover:scale-110 transition-transform" />

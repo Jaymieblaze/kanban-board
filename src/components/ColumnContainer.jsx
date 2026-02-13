@@ -38,7 +38,7 @@ function ColumnContainer({ column, deleteColumn, updateColumn, tasks, createTask
       <div
         ref={setNodeRef}
         style={style}
-        className="bg-white/50 dark:bg-gray-800/50 h-[500px] max-h-[500px] rounded-xl flex flex-col opacity-50 border-2 border-dashed border-purple-400 dark:border-purple-600 shadow-lg"
+        className="bg-white/50 dark:bg-gray-800/50 min-h-[400px] max-h-[calc(100vh-180px)] rounded-xl flex flex-col opacity-50 border-2 border-dashed border-purple-400 dark:border-purple-600 shadow-lg"
       ></div>
     );
   }
@@ -47,7 +47,7 @@ function ColumnContainer({ column, deleteColumn, updateColumn, tasks, createTask
     <div
       ref={setNodeRef}
       style={style}
-      className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm h-[500px] max-h-[500px] rounded-xl flex flex-col shadow-xl border border-white/40 dark:border-gray-700"
+      className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm min-h-[400px] max-h-[calc(100vh-180px)] rounded-xl flex flex-col shadow-xl border border-white/40 dark:border-gray-700"
     >
       {/* Title Area */}
       <div
