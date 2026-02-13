@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, arrayMove } from "@dnd-kit/sortable";
 import { createPortal } from "react-dom";
@@ -6,20 +6,40 @@ import ColumnContainer from "./components/ColumnContainer";
 import TaskCard from "./components/TaskCard";
 import { PlusIcon } from "lucide-react";
 
-function App() {
-  const [columns, setColumns] = useState([
-    { id: "todo", title: "Todo" },
-    { id: "doing", title: "In Progress" },
-    { id: "done", title: "Done" },
-  ]);
+const defaultCols = [
+  { id: "todo", title: "Todo" },
+  { id: "doing", title: "In Progress" },
+  { id: "done", title: "Done" },
+];
 
-  const [tasks, setTasks] = useState([
-    { id: "1", columnId: "todo", content: "Analyze Competitors" },
-    { id: "2", columnId: "doing", content: "Design System" },
-    { id: "3", columnId: "done", content: "Setup React Repo" },
-  ]);
+const defaultTasks = [
+  { id: "1", columnId: "todo", content: "Analyze Competitors" },
+  { id: "2", columnId: "doing", content: "Design System" },
+  { id: "3", columnId: "done", content: "Setup React Repo" },
+];
+
+function App() {
+  const [columns, setColumns] = useState(() => {
+    const savedColumns = localStorage.getItem("kanban-columns");
+    return savedColumns ? JSON.parse(savedColumns) : defaultCols;
+  });
+
+  const [tasks, setTasks] = useState(() => {
+    const savedTasks = localStorage.getItem("kanban-tasks");
+    return savedTasks ? JSON.parse(savedTasks) : defaultTasks;
+  });
 
   const [activeTask, setActiveTask] = useState(null);
+
+  // Save columns to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem("kanban-columns", JSON.stringify(columns));
+  }, [columns]);
+
+  // Save tasks to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem("kanban-tasks", JSON.stringify(tasks));
+  }, [tasks]);
 
   // Sensors: Detect mouse/touch interactions (distance: 3px prevents accidental drags)
   const sensors = useSensors(
@@ -109,8 +129,13 @@ function App() {
         const overIndex = tasks.findIndex((t) => t.id === overId);
 
         if (tasks[activeIndex].columnId !== tasks[overIndex].columnId) {
-          tasks[activeIndex].columnId = tasks[overIndex].columnId;
-          return arrayMove(tasks, activeIndex, overIndex - 1);
+          // Create a new array with the updated task instead of mutating
+          const tasksCopy = [...tasks];
+          tasksCopy[activeIndex] = {
+            ...tasksCopy[activeIndex],
+            columnId: tasksCopy[overIndex].columnId,
+          };
+          return arrayMove(tasksCopy, activeIndex, overIndex - 1);
         }
 
         return arrayMove(tasks, activeIndex, overIndex);
@@ -122,10 +147,13 @@ function App() {
     if (isActiveTask && isOverColumn) {
       setTasks((tasks) => {
         const activeIndex = tasks.findIndex((t) => t.id === activeId);
-        // Change the task's columnId to the new column's ID
-        tasks[activeIndex].columnId = overId;
-        // Move it to the active index (essentially forcing a re-render in the new column)
-        return arrayMove(tasks, activeIndex, activeIndex); 
+        // Create a new task object with updated columnId instead of mutating
+        const tasksCopy = [...tasks];
+        tasksCopy[activeIndex] = {
+          ...tasksCopy[activeIndex],
+          columnId: overId,
+        };
+        return tasksCopy;
       });
     }
   }
