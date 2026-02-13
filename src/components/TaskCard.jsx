@@ -1,9 +1,12 @@
+import { useState } from "react";
 import { Trash2 } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-function TaskCard({ task, deleteTask }) {
-  // The Hook: Connects the card to the DnD system
+function TaskCard({ task, deleteTask, updateTask }) {
+  const [mouseIsOver, setMouseIsOver] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+
   const {
     setNodeRef,
     attributes,
@@ -17,15 +20,19 @@ function TaskCard({ task, deleteTask }) {
       type: "Task",
       task,
     },
+    disabled: editMode, // IMPORTANT: Disable drag when editing so we can select text!
   });
 
-  // The Styles: Calculate the movement
   const style = {
     transition,
     transform: CSS.Transform.toString(transform),
   };
 
-  // Visual feedback when dragging (make the original ghost-like)
+  const toggleEditMode = () => {
+    setEditMode((prev) => !prev);
+    setMouseIsOver(false);
+  };
+
   if (isDragging) {
     return (
       <div
@@ -36,24 +43,61 @@ function TaskCard({ task, deleteTask }) {
     );
   }
 
+  // VIEW MODE: EDITING
+  if (editMode) {
+    return (
+      <div
+        ref={setNodeRef}
+        style={style}
+        {...attributes}
+        {...listeners}
+        className="bg-white p-4 h-[100px] min-h-[100px] items-center flex text-left rounded-xl hover:ring-2 hover:ring-rose-500 cursor-default relative"
+      >
+        <textarea
+          className="h-[90%] w-full resize-none border-none rounded bg-transparent text-black focus:outline-none"
+          value={task.content}
+          autoFocus
+          placeholder="Task content here"
+          onBlur={toggleEditMode} // Click outside to save
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              toggleEditMode(); // Press Enter to save
+            }
+          }}
+          onChange={(e) => updateTask(task.id, e.target.value)}
+        ></textarea>
+      </div>
+    );
+  }
+
+  // VIEW MODE: STATIC (Draggable)
   return (
     <div
       ref={setNodeRef}
       style={style}
       {...attributes}
       {...listeners}
+      onClick={toggleEditMode}
       className="bg-white p-4 h-[100px] min-h-[100px] items-center flex text-left rounded-xl hover:ring-2 hover:ring-rose-500 cursor-grab relative task"
+      onMouseEnter={() => setMouseIsOver(true)}
+      onMouseLeave={() => setMouseIsOver(false)}
     >
       <p className="my-auto h-[90%] w-full overflow-y-auto overflow-x-hidden whitespace-pre-wrap">
         {task.content}
       </p>
 
-      <button
-        onClick={() => deleteTask(task.id)}
-        className="stroke-gray-500 absolute right-4 top-1/2 -translate-y-1/2 bg-white p-2 rounded opacity-60 hover:opacity-100"
-      >
-        <Trash2 size={18} />
-      </button>
+      {/* Show Delete button only on hover */}
+      {mouseIsOver && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation(); // Prevent entering edit mode when clicking delete
+            deleteTask(task.id);
+          }}
+          className="stroke-gray-500 absolute right-4 top-1/2 -translate-y-1/2 bg-white p-2 rounded opacity-60 hover:opacity-100"
+        >
+          <Trash2 size={18} />
+        </button>
+      )}
     </div>
   );
 }

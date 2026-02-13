@@ -4,7 +4,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { Plus, Trash2 } from "lucide-react";
 import TaskCard from "./TaskCard";
 
-function ColumnContainer({ column, deleteColumn, tasks, createTask, deleteTask }) {
+function ColumnContainer({ column, deleteColumn, tasks, createTask, deleteTask, updateTask }) {
   const tasksIds = useMemo(() => {
     return tasks.map((task) => task.id);
   }, [tasks]);
@@ -70,7 +70,7 @@ function ColumnContainer({ column, deleteColumn, tasks, createTask, deleteTask }
       <div className="flex flex-grow flex-col gap-4 p-2 overflow-x-hidden overflow-y-auto">
         <SortableContext items={tasksIds}>
           {tasks.map((task) => (
-            <TaskCard key={task.id} task={task} deleteTask={deleteTask} />
+            <TaskCard key={task.id} task={task} deleteTask={deleteTask} updateTask={updateTask} />
           ))}
         </SortableContext>
       </div>

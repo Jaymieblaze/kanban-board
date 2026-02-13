@@ -121,6 +121,15 @@ function App() {
     }
   }
 
+  // Update the content of a task
+  function updateTask(id, content) {
+    const newTasks = tasks.map((task) => {
+      if (task.id !== id) return task;
+      return { ...task, content };
+    });
+    setTasks(newTasks);
+  }
+
   return (
     <div className="m-auto flex min-h-screen w-full items-center justify-center overflow-x-auto overflow-y-hidden px-[40px]">
       <DndContext
@@ -139,6 +148,7 @@ function App() {
                 tasks={tasks.filter((task) => task.columnId === col.id)}
                 createTask={createTask}
                 deleteTask={deleteTask}
+                updateTask={updateTask}
               />
             ))}
           </SortableContext>
@@ -151,6 +161,7 @@ function App() {
               <TaskCard
                 task={activeTask}
                 deleteTask={deleteTask}
+                updateTask={updateTask}
               />
             )}
           </DragOverlay>,
