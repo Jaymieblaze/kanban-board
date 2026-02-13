@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { Trash2, Calendar, Tag, X, AlertCircle } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import ConfirmDialog from "./ConfirmDialog";
 
 const priorityColors = {
   low: { bg: "bg-emerald-50", border: "border-emerald-400", text: "text-emerald-700" },
@@ -15,6 +16,7 @@ function TaskCard({ task, deleteTask, updateTask }) {
   const [mouseIsOver, setMouseIsOver] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [newTag, setNewTag] = useState("");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const {
     setNodeRef,
@@ -212,10 +214,7 @@ function TaskCard({ task, deleteTask, updateTask }) {
           {/* Actions */}
           <div className="flex justify-between items-center pt-4 border-t border-gray-100 dark:border-gray-700">
             <button
-              onClick={() => {
-                deleteTask(task.id);
-                toggleEditMode();
-              }}
+              onClick={() => setShowDeleteConfirm(true)}
               className="flex items-center gap-2 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 px-3 py-2 rounded-lg font-medium transition-all"
             >
               <Trash2 size={16} />
@@ -259,7 +258,7 @@ function TaskCard({ task, deleteTask, updateTask }) {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              deleteTask(task.id);
+              setShowDeleteConfirm(true);
             }}
             className="text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400"
           >
@@ -308,6 +307,19 @@ function TaskCard({ task, deleteTask, updateTask }) {
           {isOverdue(task.dueDate) && " (Overdue)"}
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={() => {
+          deleteTask(task.id);
+          if (editMode) toggleEditMode();
+        }}
+        title={`Delete "${task.content}"?`}
+        message="This action cannot be undone."
+        confirmText="Delete Task"
+      />
     </div>
   );
 }

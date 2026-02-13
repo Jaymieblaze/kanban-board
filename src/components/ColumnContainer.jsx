@@ -3,9 +3,11 @@ import { SortableContext, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Plus, Trash2 } from "lucide-react";
 import TaskCard from "./TaskCard";
+import ConfirmDialog from "./ConfirmDialog";
 
 function ColumnContainer({ column, deleteColumn, updateColumn, tasks, createTask, deleteTask, updateTask }) {
   const [editMode, setEditMode] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   
   const tasksIds = useMemo(() => {
     return tasks.map((task) => task.id);
@@ -83,7 +85,7 @@ function ColumnContainer({ column, deleteColumn, updateColumn, tasks, createTask
           )}
         </div>
         <button
-          onClick={() => deleteColumn(column.id)}
+          onClick={() => setShowDeleteConfirm(true)}
           className="text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg p-2 transition-all"
         >
           <Trash2 size={18} />
@@ -117,6 +119,16 @@ function ColumnContainer({ column, deleteColumn, updateColumn, tasks, createTask
       >
         <Plus size={18} /> Add Task
       </button>
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={() => deleteColumn(column.id)}
+        title={`Delete "${column.title}"?`}
+        message={`This will permanently delete the column and all ${tasks.length} task(s) inside it.\n\nThis action cannot be undone.`}
+        confirmText="Delete Column"
+      />
     </div>
   );
 }
