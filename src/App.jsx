@@ -4,6 +4,7 @@ import { SortableContext, arrayMove } from "@dnd-kit/sortable";
 import { createPortal } from "react-dom";
 import ColumnContainer from "./components/ColumnContainer";
 import TaskCard from "./components/TaskCard";
+import ToastContainer from "./components/Toast";
 import { PlusIcon, Search, X, LayoutDashboard, CheckCircle2, Clock, AlertCircle, ChevronLeft, ChevronRight, Menu, Moon, Sun, Filter } from "lucide-react";
 
 const defaultCols = [
@@ -67,8 +68,19 @@ function App() {
     const savedDarkMode = localStorage.getItem("kanban-dark-mode");
     return savedDarkMode ? JSON.parse(savedDarkMode) : false;
   });
+  const [toasts, setToasts] = useState([]);
   
   const COLUMNS_PER_PAGE = 4;
+
+  // Toast helper function
+  const showToast = (message, type = "info", duration = 3000) => {
+    const id = Date.now();
+    setToasts(prev => [...prev, { id, message, type, duration }]);
+  };
+
+  const removeToast = (id) => {
+    setToasts(prev => prev.filter(toast => toast.id !== id));
+  };
 
   // Apply dark mode to document
   useEffect(() => {
@@ -197,6 +209,7 @@ function App() {
       tags: [],
     };
     setTasks([...tasks, newTask]);
+    showToast("Task created successfully", "success");
   }
 
   function createNewColumn() {
@@ -205,16 +218,22 @@ function App() {
       title: `Column ${columns.length + 1}`,
     };
     setColumns([...columns, columnToAdd]);
+    showToast("Column created successfully", "success");
   }
 
   function deleteTask(id) {
     const newTasks = tasks.filter((task) => task.id !== id);
     setTasks(newTasks);
+    showToast("Task deleted", "info");
   }
 
   function deleteColumn(id) {
     const filteredColumns = columns.filter((col) => col.id !== id);
+    const tasksInColumn = tasks.filter(task => task.columnId === id).length;
     setColumns(filteredColumns);
+    // Also delete all tasks in that column
+    setTasks(tasks.filter(task => task.columnId !== id));
+    showToast(`Column deleted${tasksInColumn > 0 ? ` (${tasksInColumn} task${tasksInColumn > 1 ? 's' : ''} removed)` : ''}`, "info");
   }
 
   // --- DRAG AND DROP LOGIC STARTS HERE ---
@@ -717,6 +736,9 @@ function App() {
             document.body
           )}
         </DndContext>
+
+        {/* Toast Notifications */}
+        <ToastContainer toasts={toasts} onClose={removeToast} />
       </div>
     </div>
   );
