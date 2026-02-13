@@ -4,6 +4,7 @@ import { SortableContext, arrayMove } from "@dnd-kit/sortable";
 import { createPortal } from "react-dom";
 import ColumnContainer from "./components/ColumnContainer";
 import TaskCard from "./components/TaskCard";
+import { PlusIcon } from "lucide-react";
 
 function App() {
   const [columns, setColumns] = useState([
@@ -36,6 +37,14 @@ function App() {
       content: `Task ${tasks.length + 1}`,
     };
     setTasks([...tasks, newTask]);
+  }
+
+  function createNewColumn() {
+    const columnToAdd = {
+      id: Math.floor(Math.random() * 10001).toString(),
+      title: `Column ${columns.length + 1}`,
+    };
+    setColumns([...columns, columnToAdd]);
   }
 
   function deleteTask(id) {
@@ -139,7 +148,8 @@ function App() {
         onDragOver={onDragOver}
       >
         <div className="m-auto flex gap-4">
-          <SortableContext items={columns.map((col) => col.id)}>
+          <div className="flex gap-4">
+            <SortableContext items={columns.map((col) => col.id)}>
             {columns.map((col) => (
               <ColumnContainer
                 key={col.id}
@@ -152,6 +162,33 @@ function App() {
               />
             ))}
           </SortableContext>
+          </div>
+          
+          {/* NEW: Add Column Button */}
+          <button
+            onClick={createNewColumn}
+            className="
+              h-[60px] 
+              w-[350px] 
+              min-w-[350px] 
+              cursor-pointer 
+              rounded-lg 
+              bg-mainBackgroundColor 
+              border-2 
+              border-columnBackgroundColor 
+              p-4 
+              ring-rose-500 
+              hover:ring-2 
+              flex 
+              gap-2 
+              items-center // Centering text
+              bg-gray-100 // Visual style
+              border-gray-400 // Visual style
+            "
+          >
+            <PlusIcon /> 
+            Add Column
+          </button>
         </div>
 
         {/* Drag Overlay: The visual card that follows your mouse */}
